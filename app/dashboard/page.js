@@ -1,7 +1,12 @@
+import { AuthError } from "next-auth";
+import { headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createAccount, credentialsSchema } from "../../lib/accounts.js";
 import { signIn, signOut } from "../../lib/auth.js";
 import { getDb } from "../../lib/db.js";
 import { describeUser } from "../../lib/entitlements.js";
+import { hit } from "../../lib/rate-limit.js";
 import { RETENTION_DAYS } from "../../lib/retention.js";
 import { getSessionUser } from "../../lib/session.js";
 import "./dashboard.css";
@@ -11,9 +16,51 @@ import ReelMaker from "./ReelMaker.js";
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Your reels | Reelmark" };
 
-async function signInWithGoogle() {
+async function signInAction(formData) {
   "use server";
-  await signIn("google", { redirectTo: "/dashboard" });
+  await logIn(formData);
+}
+
+async function logIn(formData) {
+  try {
+    await signIn("credentials", {
+      email: formData.get("email"),
+      password: formData.get("password"),
+      redirectTo: "/dashboard",
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      redirect("/dashboard?error=signin");
+    }
+    throw error; // a successful sign-in redirects by throwing, so let it through
+  }
+}
+
+async function signUp(formData) {
+  "use server";
+  const parsed = credentialsSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+  if (!parsed.success) {
+    redirect("/dashboard?mode=signup&error=invalid");
+  }
+
+  const ip = (await headers()).get("x-forwarded-for")?.split(",")[0].trim();
+  const db = await getDb();
+  const { allowed } = await hit(db, `signup:${ip ?? "unknown"}`, {
+    limit: 5,
+    windowSeconds: 3600,
+  });
+  if (!allowed) {
+    redirect("/dashboard?mode=signup&error=slow");
+  }
+
+  const created = await createAccount(db, parsed.data);
+  if (!created.ok) {
+    redirect("/dashboard?mode=signup&error=exists");
+  }
+  await logIn(formData);
 }
 
 async function signOutNow() {
@@ -32,19 +79,49 @@ async function recentReels(db, userId) {
     .toArray();
 }
 
-function SignedOut() {
+const ERRORS = {
+  signin: "That email and password did not match. Please try again.",
+  invalid: "Enter a valid email and a password of 8 to 128 characters.",
+  exists: "An account with that email already exists. Try signing in.",
+  slow: "Too many sign-ups from this network. Please try again later.",
+};
+
+function SignedOut({ signingUp, error }) {
   return (
     <main className="dash dash-narrow">
-      <h1>Sign in to make your reel</h1>
-      <p className="dash-lede">
-        Your first reel is free. We use your Google account only to know who you
-        are.
-      </p>
-      <form action={signInWithGoogle}>
+      <h1>{signingUp ? "Create your account" : "Sign in to make your reel"}</h1>
+      <p className="dash-lede">Your first reel is free.</p>
+      {ERRORS[error] && (
+        <p className="dash-status" role="alert">
+          {ERRORS[error]}
+        </p>
+      )}
+      <form action={signingUp ? signUp : signInAction} className="dash-form">
+        <label>
+          Email
+          <input name="email" type="email" autoComplete="email" required />
+        </label>
+        <label>
+          Password
+          <input
+            name="password"
+            type="password"
+            minLength={8}
+            maxLength={128}
+            autoComplete={signingUp ? "new-password" : "current-password"}
+            required
+          />
+        </label>
         <button className="dash-btn" type="submit">
-          Continue with Google
+          {signingUp ? "Create account" : "Sign in"}
         </button>
       </form>
+      <Link
+        className="dash-back"
+        href={signingUp ? "/dashboard" : "/dashboard?mode=signup"}
+      >
+        {signingUp ? "I already have an account" : "Create an account"}
+      </Link>
       <Link className="dash-back" href="/">
         Back to the home page
       </Link>
@@ -53,15 +130,18 @@ function SignedOut() {
 }
 
 export default async function Dashboard({ searchParams }) {
+  const query = await searchParams;
   const user = await getSessionUser();
   if (!user) {
-    return <SignedOut />;
+    return (
+      <SignedOut signingUp={query.mode === "signup"} error={query.error} />
+    );
   }
 
   const db = await getDb();
   const plan = await describeUser(db, user.id);
   const reels = await recentReels(db, user.id);
-  const justUpgraded = (await searchParams).upgraded === "1";
+  const justUpgraded = query.upgraded === "1";
 
   return (
     <main className="dash">
