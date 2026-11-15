@@ -23,16 +23,17 @@ describe("parseYouTubeId", () => {
 });
 
 describe("createJobSchema", () => {
-  const url = "https://youtu.be/aqz-KE-bpKQ";
+  const sourceUrl =
+    "https://res.cloudinary.com/demo/video/upload/sources/a.mp4";
   it("requires the rights confirmation", () => {
     expect(
-      createJobSchema.safeParse({ url, rightsConfirmed: false }).success,
+      createJobSchema.safeParse({ sourceUrl, rightsConfirmed: false }).success,
     ).toBe(false);
-    expect(createJobSchema.safeParse({ url }).success).toBe(false);
+    expect(createJobSchema.safeParse({ sourceUrl }).success).toBe(false);
   });
   it("accepts a valid request", () => {
     expect(
-      createJobSchema.safeParse({ url, rightsConfirmed: true }).success,
+      createJobSchema.safeParse({ sourceUrl, rightsConfirmed: true }).success,
     ).toBe(true);
   });
 });

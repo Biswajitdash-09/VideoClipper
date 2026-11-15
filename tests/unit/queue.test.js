@@ -34,7 +34,10 @@ beforeEach(() =>
 
 describe("queue", () => {
   it("lets exactly one of many concurrent workers claim a job", async () => {
-    const job = await enqueueJob(db, { userId: "u1", videoId: "aqz-KE-bpKQ" });
+    const job = await enqueueJob(db, {
+      userId: "u1",
+      sourceUrl: "https://res.cloudinary.com/demo/video/upload/sources/a.mp4",
+    });
     const results = await Promise.all(
       Array.from({ length: 20 }, () => claimJob(db, job._id)),
     );
@@ -43,13 +46,19 @@ describe("queue", () => {
   });
 
   it("does not re-claim a job whose lock is still valid", async () => {
-    await enqueueJob(db, { userId: "u1", videoId: "aqz-KE-bpKQ" });
+    await enqueueJob(db, {
+      userId: "u1",
+      sourceUrl: "https://res.cloudinary.com/demo/video/upload/sources/a.mp4",
+    });
     expect(await claimJob(db)).toBeTruthy();
     expect(await claimJob(db)).toBeNull();
   });
 
   it("re-claims a job after its lock expires (crashed worker)", async () => {
-    const job = await enqueueJob(db, { userId: "u1", videoId: "aqz-KE-bpKQ" });
+    const job = await enqueueJob(db, {
+      userId: "u1",
+      sourceUrl: "https://res.cloudinary.com/demo/video/upload/sources/a.mp4",
+    });
     await claimJob(db, job._id);
     await db
       .collection("jobs")
@@ -62,7 +71,10 @@ describe("queue", () => {
   });
 
   it("stops re-claiming after MAX_ATTEMPTS and fails the job", async () => {
-    const job = await enqueueJob(db, { userId: "u1", videoId: "aqz-KE-bpKQ" });
+    const job = await enqueueJob(db, {
+      userId: "u1",
+      sourceUrl: "https://res.cloudinary.com/demo/video/upload/sources/a.mp4",
+    });
     for (let i = 0; i < MAX_ATTEMPTS; i++) {
       expect(await claimJob(db, job._id)).toBeTruthy();
       await db
@@ -80,7 +92,10 @@ describe("queue", () => {
   });
 
   it("completes only once and cannot complete a non-processing job", async () => {
-    const job = await enqueueJob(db, { userId: "u1", videoId: "aqz-KE-bpKQ" });
+    const job = await enqueueJob(db, {
+      userId: "u1",
+      sourceUrl: "https://res.cloudinary.com/demo/video/upload/sources/a.mp4",
+    });
     expect((await completeJob(db, job._id, { url: "x" })).modifiedCount).toBe(
       0,
     ); // still queued
