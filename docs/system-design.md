@@ -44,3 +44,11 @@ URLs parsed to an 11-char video id (strict host allow-list; the raw string never
 1. YouTube access from datacenter IPs and the yt-dlp JS-challenge requirement.
 2. YouTube ToS forbids downloading; commercial exposure.
 3. Vercel Hobby is non-commercial; real scale means paid tiers.
+
+## Phase 0 outcome (decision)
+
+yt-dlp failed on 3 real videos: YouTube now needs a JS runtime plus a challenge solver downloaded from GitHub, and
+datacenter IPs (Vercel) may be blocked on top of that. **Decision: upload-first.** A direct file upload is the main
+source (`lib/source/upload-source.js`); `lib/source/youtube-slice.js` stays as an optional, unmeasured extra.
+Uploads have no captions, so the window is `pickWindow`'s fallback and no captions are burned in until speech-to-text is added.
+Local result: 40 s 720p input -> 15 s 720x1280 reel, 1.8 s, 1.7 MB (`node scripts/spike-upload.mjs <file>`).

@@ -6,7 +6,9 @@
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
-    "spike": "node scripts/spike.mjs"
+    "spike": "node scripts/spike.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "mongodb": "^7.9.0",
@@ -17,6 +19,7 @@
   },
   "devDependencies": {
     "mongodb-memory-server": "^11.3.0",
+    "prettier": "^3.10.1",
     "vitest": "^5.1.0"
   },
   "type": "module"
