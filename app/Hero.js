@@ -41,7 +41,7 @@ export default function Hero() {
       last = now;
       const phone = innerWidth <= 820, W = L.clientWidth, Hh = L.clientHeight;
       S = phone ? W / 640 : Math.min(innerWidth / 1440, innerHeight / 1080);
-      const cx = phone ? 320 : 720, H = phone ? 340 : 706, cy0 = phone ? Hh / S / 2 : 217;
+      const cx = phone ? 320 : W / S / 2, H = phone ? 340 : 706, cy0 = phone ? Hh / S / 2 : 217;
       if (!drag) { pos += (reduce ? 0 : 50) * dt - vel * dt; vel *= Math.pow(0.05, dt); }
       const edgeH = (x) => 280 + 92 * Math.min(Math.abs(x - cx) / H, 1.6) ** 2.6;
 
@@ -83,6 +83,22 @@ export default function Hero() {
     L.addEventListener('pointerdown', down); L.addEventListener('pointermove', move);
     L.addEventListener('pointerup', up); L.addEventListener('pointercancel', up);
 
+    // Scroll-driven: page scroll nudges the cards (cards travel faster than the page),
+    // and horizontal wheel/trackpad swipes over the deck move them directly.
+    // Vertical wheel is never captured, so the page still scrolls normally.
+    let lastY = scrollY;
+    const onScroll = () => {
+      if (!reduce) pos += ((scrollY - lastY) * 1.5) / S;
+      lastY = scrollY;
+    };
+    const onWheel = (e) => {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      pos += e.deltaX / S;
+    };
+    addEventListener('scroll', onScroll, { passive: true });
+    L.addEventListener('wheel', onWheel, { passive: false });
+
     // entrance
     if (!reduce) {
       const q = (s) => [...root.current.querySelectorAll(`[data-a=${s}]`)];
@@ -99,7 +115,12 @@ export default function Hero() {
       go(q('note'), [{ opacity: 0 }, { opacity: 1 }], 1500, 700);
     }
 
-    return () => { cancelAnimationFrame(raf); clock.cancel(); };
+    return () => {
+      cancelAnimationFrame(raf);
+      clock.cancel();
+      removeEventListener('scroll', onScroll);
+      L.removeEventListener('wheel', onWheel);
+    };
   }, []);
 
   const draw = { pathLength: 1, className: 'draw', 'data-a': 'draw' };
