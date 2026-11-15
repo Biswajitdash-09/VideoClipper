@@ -1,7 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import CropPreview from "./CropPreview.js";
+import TrimEditor from "./TrimEditor.js";
 
+const FIRST_TRIM = { start: 0, length: 15, videoLength: null };
 const MAX_BYTES = 100 * 1024 * 1024; // Cloudinary's free-plan limit for one video
 const POLL_MS = 4000;
 const MAX_POLLS = 150; // about 10 minutes
@@ -66,6 +69,12 @@ export default function ReelMaker({ canStart }) {
   const [progress, setProgress] = useState(0);
   const [message, setMessage] = useState("");
   const [reelUrl, setReelUrl] = useState("");
+  const [file, setFile] = useState(null);
+  const [trim, setTrim] = useState(FIRST_TRIM);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [playback, setPlayback] = useState({ time: 0, playing: false });
+  const [canRetry, setCanRetry] = useState(false);
+  const jobId = useRef(null);
   const stopped = useRef(false);
 
   useEffect(() => {
@@ -75,10 +84,71 @@ export default function ReelMaker({ canStart }) {
     };
   }, []);
 
+  // One local copy of the chosen video, shared by the editor and the crop preview.
+  useEffect(() => {
+    if (!file?.type.startsWith("video/")) {
+      setPreviewUrl("");
+      return;
+    }
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    setPlayback({ time: 0, playing: false });
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [file]);
+
+  function chooseFile(event) {
+    setFile(event.target.files[0] ?? null);
+    setTrim(FIRST_TRIM);
+  }
+
+  function changeTrim(change) {
+    setTrim((current) => ({ ...current, ...change }));
+  }
+
   function fail(text) {
     setMessage(text);
     setPhase("error");
     router.refresh(); // a failed reel is refunded, so show the real plan state
+  }
+
+  // The server deletes the reel once it has been sent, so this is the one chance to get it.
+  // The browser keeps it in memory for the preview and the Download button.
+  async function loadReel() {
+    setCanRetry(false);
+    let blob;
+    try {
+      const response = await fetch(`/api/jobs/${jobId.current}/download`);
+      if (response.status === 410 || response.status === 404) {
+        throw new UserFacingError(
+          "This reel was already downloaded, so we no longer have it.",
+        );
+      }
+      if (!response.ok) {
+        throw new Error("download failed");
+      }
+      blob = await response.blob();
+    } catch (error) {
+      if (error instanceof UserFacingError) {
+        throw error;
+      }
+      // The reel is only deleted after a complete download, so trying again is safe.
+      setCanRetry(true);
+      throw new UserFacingError("Your reel is made but could not be loaded.");
+    }
+
+    setReelUrl(URL.createObjectURL(blob));
+    jobId.current = null;
+    setPhase("done");
+    router.refresh();
+  }
+
+  async function retryLoad() {
+    try {
+      setPhase("processing");
+      await loadReel();
+    } catch (error) {
+      fail(error.message);
+    }
   }
 
   async function waitForReel(id) {
@@ -95,9 +165,7 @@ export default function ReelMaker({ canStart }) {
       }
       const job = await response.json();
       if (job.status === "done") {
-        setReelUrl(job.result.reelUrl);
-        setPhase("done");
-        router.refresh();
+        await loadReel();
         return;
       }
       if (job.status === "failed") {
@@ -114,9 +182,8 @@ export default function ReelMaker({ canStart }) {
   async function onSubmit(event) {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const file = form.get("video");
 
-    if (!(file instanceof File) || file.size === 0) {
+    if (!file || file.size === 0) {
       return fail("Choose a video file first.");
     }
     if (!file.type.startsWith("video/")) {
@@ -129,18 +196,29 @@ export default function ReelMaker({ canStart }) {
       return fail("Confirm you own this video or have permission to use it.");
     }
 
+    if (trim.videoLength !== null && trim.videoLength < trim.length) {
+      return fail(
+        `Your video is ${Math.floor(trim.videoLength)} seconds long. Pick a shorter reel or choose a longer video.`,
+      );
+    }
+
     try {
       setPhase("uploading");
       setProgress(0);
       setMessage("");
+      setCanRetry(false);
+      setReelUrl("");
       const signed = await postJson("/api/uploads/sign");
       const sourceUrl = await uploadToCloudinary(file, signed, setProgress);
 
       setPhase("processing");
       const { id } = await postJson("/api/jobs", {
         sourceUrl,
+        start: trim.start,
+        duration: trim.length,
         rightsConfirmed: true,
       });
+      jobId.current = id;
       await waitForReel(id);
     } catch (error) {
       fail(
@@ -151,19 +229,6 @@ export default function ReelMaker({ canStart }) {
     }
   }
 
-  async function download() {
-    try {
-      const blob = await (await fetch(reelUrl)).blob();
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = "reel.mp4";
-      link.click();
-      URL.revokeObjectURL(link.href);
-    } catch {
-      window.open(reelUrl, "_blank", "noreferrer");
-    }
-  }
-
   const busy = phase === "uploading" || phase === "processing";
 
   return (
@@ -171,7 +236,9 @@ export default function ReelMaker({ canStart }) {
       <div className="maker-controls">
         <h2 id="maker-h">Upload a video</h2>
         <p className="dash-lede">
-          We cut a 15-second clip and crop it to vertical. Videos up to 100 MB.
+          Pick the part you want, 10 to 30 seconds, and we crop it to vertical.
+          Videos up to 100 MB. Your reel is deleted from our servers as soon as
+          it reaches you.
         </p>
 
         {canStart ? (
@@ -183,7 +250,16 @@ export default function ReelMaker({ canStart }) {
               type="file"
               accept="video/*"
               disabled={busy}
+              onChange={chooseFile}
             />
+            {file?.type.startsWith("video/") && (
+              <TrimEditor
+                url={previewUrl}
+                trim={trim}
+                onTrim={changeTrim}
+                onPlayback={setPlayback}
+              />
+            )}
             <label className="try-check">
               <input type="checkbox" name="rights" disabled={busy} /> I own this
               video or have permission to use it.
@@ -205,24 +281,43 @@ export default function ReelMaker({ canStart }) {
           {phase === "uploading" && `Uploading… ${progress}%`}
           {phase === "processing" &&
             "Making your reel. This takes about a minute."}
-          {phase === "done" && "Your reel is ready."}
+          {phase === "done" &&
+            "Your reel is ready. Download it now: we do not keep it."}
           {phase === "error" && message}
         </p>
         {phase === "uploading" && (
           <progress value={progress} max="100" aria-label="Upload progress" />
         )}
         {phase === "done" && (
-          <button className="dash-btn" type="button" onClick={download}>
+          <a className="dash-btn" href={reelUrl} download="reel.mp4">
             Download reel
+          </a>
+        )}
+        {phase === "error" && canRetry && (
+          <button className="dash-btn" type="button" onClick={retryLoad}>
+            Try again
           </button>
         )}
       </div>
 
-      <div className={`reel-frame ${phase}`}>
-        {phase === "done" ? (
-          <video src={reelUrl} controls playsInline loop autoPlay muted />
-        ) : (
-          <p>{busy ? "Working on it…" : "Your reel appears here"}</p>
+      <div className="reel-side">
+        <div className={`reel-frame ${phase}`}>
+          {phase === "done" ? (
+            <video src={reelUrl} controls playsInline loop autoPlay muted />
+          ) : previewUrl && !busy && trim.videoLength ? (
+            <CropPreview
+              url={previewUrl}
+              time={playback.time}
+              playing={playback.playing}
+            />
+          ) : (
+            <p>{busy ? "Working on it…" : "Your reel appears here"}</p>
+          )}
+        </div>
+        {phase !== "done" && previewUrl && !busy && trim.videoLength && (
+          <p className="reel-caption">
+            What your reel will show. The sides are cropped to fit vertical.
+          </p>
         )}
       </div>
     </section>

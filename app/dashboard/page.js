@@ -7,7 +7,6 @@ import { signIn, signOut } from "../../lib/auth.js";
 import { getDb } from "../../lib/db.js";
 import { describeUser } from "../../lib/entitlements.js";
 import { hit } from "../../lib/rate-limit.js";
-import { RETENTION_DAYS } from "../../lib/retention.js";
 import { getSessionUser } from "../../lib/session.js";
 import "./dashboard.css";
 import BillingButton from "./BillingButton.js";
@@ -66,17 +65,6 @@ async function signUp(formData) {
 async function signOutNow() {
   "use server";
   await signOut({ redirectTo: "/" });
-}
-
-async function recentReels(db, userId) {
-  const cutoff = new Date(Date.now() - RETENTION_DAYS * 24 * 3600 * 1000);
-  return db
-    .collection("jobs")
-    .find({ userId, status: "done", finishedAt: { $gt: cutoff } })
-    .sort({ finishedAt: -1 })
-    .limit(5)
-    .project({ result: 1, finishedAt: 1 })
-    .toArray();
 }
 
 const ERRORS = {
@@ -140,7 +128,6 @@ export default async function Dashboard({ searchParams }) {
 
   const db = await getDb();
   const plan = await describeUser(db, user.id);
-  const reels = await recentReels(db, user.id);
   const justUpgraded = query.upgraded === "1";
 
   return (
@@ -192,23 +179,6 @@ export default async function Dashboard({ searchParams }) {
       )}
 
       <ReelMaker canStart={plan.canStart} />
-
-      <section className="dash-recent" aria-labelledby="recent-h">
-        <h2 id="recent-h">Your recent reels</h2>
-        {reels.length === 0 ? (
-          <p>Reels you make show up here for {RETENTION_DAYS} days.</p>
-        ) : (
-          <ul>
-            {reels.map((reel) => (
-              <li key={String(reel._id)}>
-                <a href={reel.result.reelUrl} target="_blank" rel="noreferrer">
-                  Reel from {reel.finishedAt.toLocaleDateString("en-GB")}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
     </main>
   );
 }
