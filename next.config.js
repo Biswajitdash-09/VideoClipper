@@ -9,11 +9,7 @@ const csp = [
   "img-src 'self' data: blob: https://res.cloudinary.com https://d2ol7oe51mr4n9.cloudfront.net https://lh3.googleusercontent.com",
   "media-src 'self' blob: https://res.cloudinary.com https://d2ol7oe51mr4n9.cloudfront.net",
   "font-src 'self' data:",
-<<<<<<< HEAD
   "connect-src 'self' https://api.cloudinary.com https://res.cloudinary.com",
-=======
-  "connect-src 'self' https://api.cloudinary.com",
->>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
   "form-action 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
