@@ -115,3 +115,9 @@ details p { padding: 0 0 20px; max-width: 60ch; }
   .plans { grid-template-columns: 1fr; }
   .try-row { flex-direction: column; }
 }
+
+/* Desktop: hero is pinned while scrolling through the runway; only the cards move. */
+@media (min-width: 821px) {
+  .runway { height: 300vh; }
+  .hero { position: sticky; top: 0; height: 100vh; }
+}

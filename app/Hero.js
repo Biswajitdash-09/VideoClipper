@@ -83,13 +83,21 @@ export default function Hero() {
     L.addEventListener('pointerdown', down); L.addEventListener('pointermove', move);
     L.addEventListener('pointerup', up); L.addEventListener('pointercancel', up);
 
-    // Scroll-driven: page scroll nudges the cards (cards travel faster than the page),
-    // and horizontal wheel/trackpad swipes over the deck move them directly.
-    // Vertical wheel is never captured, so the page still scrolls normally.
-    let lastY = scrollY;
+    // Scroll-driven: the hero is pinned (sticky) inside a tall runway. Scrolling through the
+    // runway moves only the cards; once the runway ends the page scrolls on as normal.
+    // Horizontal wheel/trackpad swipes over the deck also move the cards directly.
+    const runway = root.current.closest('.runway');
+    const TRAVEL = 2000; // card units travelled over the whole runway
+    const progress = () => {
+      const r = runway.getBoundingClientRect();
+      const room = r.height - innerHeight;
+      return innerWidth <= 820 || room <= 0 ? 0 : Math.min(1, Math.max(0, -r.top / room));
+    };
+    let lastP = progress();
     const onScroll = () => {
-      if (!reduce) pos += ((scrollY - lastY) * 1.5) / S;
-      lastY = scrollY;
+      const p = progress();
+      if (!reduce) pos += (p - lastP) * TRAVEL;
+      lastP = p;
     };
     const onWheel = (e) => {
       if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
@@ -125,7 +133,7 @@ export default function Hero() {
 
   const draw = { pathLength: 1, className: 'draw', 'data-a': 'draw' };
   return (
-    <div className="hero"><div className="frame" ref={root}>
+    <div className="runway"><div className="hero"><div className="frame" ref={root}>
       <header className="top">
         <a className="a logo" href="#top" data-a="nav" aria-label="Reelmark home">
           <svg viewBox="0 0 28 28"><path d="M4 24C4 10 12 4 25 3c0 13-6 21-18 21" fill="#08482D" /><path d="M5 25c5-8 9-12 15-16" stroke="#F5F8EF" strokeWidth="1.8" fill="none" strokeLinecap="round" /></svg>
@@ -161,6 +169,6 @@ export default function Hero() {
       <div className="a cta" data-a="cta"><a href="#try">Make a Reel</a></div>
       <svg className="a doodle arr2" viewBox="0 0 50 50"><path {...draw} d="M4 40 C14 44 34 36 44 10" /><path {...draw} d="M34 14 L44 8 L47 22" /></svg>
       <div className="a note zero" data-a="note">First one's free</div>
-    </div></div>
+    </div></div></div>
   );
 }
