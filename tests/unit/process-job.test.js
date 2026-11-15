@@ -44,6 +44,18 @@ beforeEach(() => db.collection("jobs").deleteMany({}));
 const SOURCE =
   "https://res.cloudinary.com/democloud/video/upload/v1/sources/a.mp4";
 
+// A user's choice: 10 seconds starting 5 seconds in.
+const CHOICE = { start: 5, duration: 10 };
+
+function queueJob(overrides = {}) {
+  return enqueueJob(db, {
+    userId: "u1",
+    sourceUrl: SOURCE,
+    ...CHOICE,
+    ...overrides,
+  });
+}
+
 function fakeSteps(overrides = {}) {
   return {
     download: vi.fn(),
@@ -51,25 +63,75 @@ function fakeSteps(overrides = {}) {
     slice: vi.fn().mockResolvedValue("slice.mp4"),
     render: vi.fn().mockResolvedValue("reel.mp4"),
     upload: vi.fn().mockResolvedValue("https://cdn/reel.mp4"),
+    removeSource: vi.fn(),
     ...overrides,
   };
 }
 
 describe("processJob", () => {
-  it("runs a job to done and stores the reel url", async () => {
-    const job = await enqueueJob(db, { userId: "u1", sourceUrl: SOURCE });
+  it("cuts exactly the part the user chose and saves no reel link", async () => {
+    const job = await queueJob();
     const steps = fakeSteps();
 
     await processJob(db, job._id, steps);
 
     const saved = await db.collection("jobs").findOne({ _id: job._id });
     expect(saved.status).toBe("done");
-    expect(saved.result.reelUrl).toBe("https://cdn/reel.mp4");
+    expect(saved.result).toBeUndefined();
+    expect(steps.slice).toHaveBeenCalledWith(
+      expect.any(String),
+      { start: 5, end: 15 },
+      expect.any(String),
+    );
     expect(steps.upload).toHaveBeenCalledWith("reel.mp4", String(job._id));
   });
 
+  it("deletes the uploaded source once the reel is made", async () => {
+    const job = await queueJob();
+    const steps = fakeSteps();
+
+    await processJob(db, job._id, steps);
+
+    expect(steps.removeSource).toHaveBeenCalledWith(SOURCE);
+  });
+
+  it("still finishes the reel when deleting the source fails", async () => {
+    const job = await queueJob();
+    const steps = fakeSteps({
+      removeSource: vi.fn().mockRejectedValue(new Error("cloudinary down")),
+    });
+
+    await processJob(db, job._id, steps);
+
+    const saved = await db.collection("jobs").findOne({ _id: job._id });
+    expect(saved.status).toBe("done");
+  });
+
+  it("fails, and keeps the source, when the chosen part is past the end", async () => {
+    const job = await queueJob({ start: 35, duration: 10 }); // video is 40 s
+    const steps = fakeSteps();
+
+    await processJob(db, job._id, steps);
+
+    const saved = await db.collection("jobs").findOne({ _id: job._id });
+    expect(saved.status).toBe("failed");
+    expect(saved.error).toMatch(/past the end/);
+    expect(steps.render).not.toHaveBeenCalled();
+    expect(steps.removeSource).not.toHaveBeenCalled();
+  });
+
+  it("allows a part that ends within half a second of the video's end", async () => {
+    const job = await queueJob({ start: 30, duration: 10 }); // ends at 40 s
+    const steps = fakeSteps({ probe: vi.fn().mockResolvedValue(39.6) });
+
+    await processJob(db, job._id, steps);
+
+    const saved = await db.collection("jobs").findOne({ _id: job._id });
+    expect(saved.status).toBe("done");
+  });
+
   it("marks the job failed when a step throws", async () => {
-    const job = await enqueueJob(db, { userId: "u1", sourceUrl: SOURCE });
+    const job = await queueJob();
     const steps = fakeSteps({
       probe: vi.fn().mockRejectedValue(new Error("not a playable video")),
     });
@@ -82,7 +144,7 @@ describe("processJob", () => {
   });
 
   it("recovers a crashed job exactly once", async () => {
-    const job = await enqueueJob(db, { userId: "u1", sourceUrl: SOURCE });
+    const job = await queueJob();
     // Worker A claims the job and then dies without finishing.
     await db.collection("jobs").updateOne(
       { _id: job._id },
@@ -108,7 +170,7 @@ describe("processJob", () => {
   });
 
   it("does not touch a job that is still locked by a live worker", async () => {
-    const job = await enqueueJob(db, { userId: "u1", sourceUrl: SOURCE });
+    const job = await queueJob();
     await db.collection("jobs").updateOne(
       { _id: job._id },
       {

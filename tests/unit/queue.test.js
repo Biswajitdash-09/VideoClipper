@@ -96,13 +96,9 @@ describe("queue", () => {
       userId: "u1",
       sourceUrl: "https://res.cloudinary.com/demo/video/upload/sources/a.mp4",
     });
-    expect((await completeJob(db, job._id, { url: "x" })).modifiedCount).toBe(
-      0,
-    ); // still queued
+    expect((await completeJob(db, job._id)).modifiedCount).toBe(0); // still queued
     await claimJob(db, job._id);
-    expect((await completeJob(db, job._id, { url: "x" })).modifiedCount).toBe(
-      1,
-    );
+    expect((await completeJob(db, job._id)).modifiedCount).toBe(1);
     expect((await failJob(db, job._id, "late")).modifiedCount).toBe(0); // already done
   });
 });

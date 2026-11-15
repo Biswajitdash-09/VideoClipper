@@ -48,7 +48,12 @@ function jobRequest(body) {
   });
 }
 
-const validBody = { sourceUrl: SOURCE, rightsConfirmed: true };
+const validBody = {
+  sourceUrl: SOURCE,
+  start: 5,
+  duration: 15,
+  rightsConfirmed: true,
+};
 
 beforeAll(async () => {
   testDb = await startTestDb();
@@ -88,6 +93,29 @@ describe("POST /api/jobs", () => {
       jobRequest({ sourceUrl: SOURCE, rightsConfirmed: false }),
     );
     expect(response.status).toBe(400);
+  });
+
+  it.each([
+    ["a length that is not offered", { duration: 12 }],
+    ["a length over 30 seconds", { duration: 60 }],
+    ["a negative start", { start: -1 }],
+    ["a start that is not a number", { start: "5" }],
+    ["no start", { start: undefined }],
+    ["no length", { duration: undefined }],
+  ])("rejects %s and keeps the trial", async (_name, change) => {
+    currentUser = alice;
+    const response = await createJob(jobRequest({ ...validBody, ...change }));
+
+    expect(response.status).toBe(400);
+    expect((await describeUser(db, "alice")).trialAvailable).toBe(true);
+  });
+
+  it("saves the user's start and length on the job", async () => {
+    currentUser = alice;
+    await createJob(jobRequest({ ...validBody, start: 12.5, duration: 20 }));
+
+    const job = await db.collection("jobs").findOne({});
+    expect(job).toMatchObject({ start: 12.5, duration: 20 });
   });
 
   it("starts the first reel and blocks the second trial reel", async () => {
@@ -153,7 +181,9 @@ describe("GET /api/jobs/[id]", () => {
     });
 
     expect(response.status).toBe(200);
-    expect((await response.json()).status).toBe("queued");
+    const body = await response.json();
+    expect(body.status).toBe("queued");
+    expect(body).not.toHaveProperty("result");
   });
 
   it("hides one user's job from another user", async () => {

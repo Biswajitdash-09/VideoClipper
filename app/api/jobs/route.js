@@ -56,6 +56,8 @@ export async function POST(request) {
     const job = await enqueueJob(db, {
       userId: user.id,
       sourceUrl: parsed.data.sourceUrl,
+      start: parsed.data.start,
+      duration: parsed.data.duration,
       charge: reserved.charge,
     });
     after(() => processJob(db, job._id));

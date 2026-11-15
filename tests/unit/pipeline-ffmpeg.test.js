@@ -49,8 +49,13 @@ afterAll(async () => {
 });
 
 describe("full pipeline with real ffmpeg", () => {
-  it("turns a 40 s landscape video into a 15 s 720x1280 reel", async () => {
-    const job = await enqueueJob(db, { userId: "u1", sourceUrl });
+  it("cuts the chosen 20 s out of a 40 s landscape video as a 720x1280 reel", async () => {
+    const job = await enqueueJob(db, {
+      userId: "u1",
+      sourceUrl,
+      start: 12,
+      duration: 20,
+    });
     const upload = vi.fn(async (reelPath) => {
       // The file is deleted after the job, so inspect it now.
       const out = await run(FFPROBE_BIN, [
@@ -74,13 +79,14 @@ describe("full pipeline with real ffmpeg", () => {
       slice: sliceUpload,
       render: renderReel,
       upload,
+      removeSource: vi.fn(),
     });
 
     const saved = await db.collection("jobs").findOne({ _id: job._id });
     expect(saved.status).toBe("done");
     const [width, height, duration] = upload.probed.split(",");
     expect([width, height]).toEqual(["720", "1280"]);
-    expect(Number(duration)).toBeGreaterThan(9.5);
+    expect(Number(duration)).toBeGreaterThan(19.5);
     expect(Number(duration)).toBeLessThan(20.5);
   }, 120_000);
 
