@@ -110,6 +110,12 @@ export default function Sections() {
         <span>
           <a href="/terms">Terms</a> · <a href="/takedown">Takedown requests</a>
         </span>
+        <span>
+          Built with love by Biswajit Dash ·{" "}
+          <a href="mailto:biswajitdash929@gmail.com">
+            biswajitdash929@gmail.com
+          </a>
+        </span>
       </footer>
     </>
   );
