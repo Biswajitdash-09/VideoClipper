@@ -278,10 +278,17 @@ export default function Hero() {
                 </a>
               ))}
             </nav>
+<<<<<<< HEAD
             <a className="a pill login" href="/dashboard" data-a="nav">
               Log in
             </a>
             <a className="a pill signup" href="/dashboard" data-a="nav">
+=======
+            <a className="a pill login" href="#try" data-a="nav">
+              Log in
+            </a>
+            <a className="a pill signup" href="#try" data-a="nav">
+>>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
               Sign up
             </a>
           </header>
@@ -294,8 +301,13 @@ export default function Hero() {
             <span data-a="line">with Snackable Reels</span>
           </h1>
           <p className="a sub" data-a="sub">
+<<<<<<< HEAD
             Upload a video and we cut a 15-second clip, <br />
             crop it to vertical, ready to post. <br />
+=======
+            Paste a YouTube link and we find the best 10–20 seconds, <br />
+            crop it to vertical and add captions, ready to post. <br />
+>>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
             Works with any video you have the rights to.
           </p>
 
@@ -336,7 +348,11 @@ export default function Hero() {
           </div>
 
           <div className="a cta" data-a="cta">
+<<<<<<< HEAD
             <a href="/dashboard">Make a Reel</a>
+=======
+            <a href="#try">Make a Reel</a>
+>>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
           </div>
           <svg className="a doodle arr2" viewBox="0 0 50 50">
             <path {...draw} d="M4 40 C14 44 34 36 44 10" />

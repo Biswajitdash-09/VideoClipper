@@ -52,6 +52,7 @@ datacenter IPs (Vercel) may be blocked on top of that. **Decision: upload-first.
 source (`lib/source/upload-source.js`); `lib/source/youtube-slice.js` stays as an optional, unmeasured extra.
 Uploads have no captions, so the window is `pickWindow`'s fallback and no captions are burned in until speech-to-text is added.
 Local result: 40 s 720p input -> 15 s 720x1280 reel, 1.8 s, 1.7 MB (`node scripts/spike-upload.mjs <file>`).
+<<<<<<< HEAD
 
 ## Phases 2-5 as built
 
@@ -66,3 +67,5 @@ Local result: 40 s 720p input -> 15 s 720x1280 reel, 1.8 s, 1.7 MB (`node script
 - **Tests:** `npm test` (unit and Mongo integration, 77 tests) and `npm run test:e2e` (Playwright on a production build with
   an in-memory Mongo and fake third-party keys).
 - **Not covered by any test:** real Google sign-in, real Stripe, real Cloudinary, ffmpeg on Vercel.
+=======
+>>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b

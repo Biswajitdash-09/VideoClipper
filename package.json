@@ -8,8 +8,12 @@
     "test": "vitest run",
     "spike": "node scripts/spike.mjs",
     "format": "prettier --write .",
+<<<<<<< HEAD
     "format:check": "prettier --check .",
     "test:e2e": "playwright test"
+=======
+    "format:check": "prettier --check ."
+>>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
   },
   "dependencies": {
     "cloudinary": "^2.11.0",
@@ -24,7 +28,10 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@playwright/test": "^1.65.1",
+=======
+>>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
     "mongodb-memory-server": "^11.3.0",
     "prettier": "^3.10.1",
     "vitest": "^5.1.0"
