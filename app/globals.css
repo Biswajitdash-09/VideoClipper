@@ -147,7 +147,7 @@ h1 span + span {
 }
 .seen {
   left: calc(var(--u) * 1212);
-  top: calc(var(--u) * 310);
+  top: calc(var(--u) * 260);
   font-size: calc(var(--u) * 34);
   transform: rotate(16deg);
   transform-origin: left top;
@@ -179,7 +179,7 @@ h1 span + span {
 }
 .arr1 {
   left: calc(var(--u) * 1180);
-  top: calc(var(--u) * 395);
+  top: calc(var(--u) * 345);
   width: calc(var(--u) * 200);
   height: calc(var(--u) * 150);
 }
