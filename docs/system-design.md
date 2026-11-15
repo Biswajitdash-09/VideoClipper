@@ -56,13 +56,19 @@ Local result: 40 s 720p input -> 15 s 720x1280 reel, 1.8 s, 1.7 MB (`node script
 ## Phases 2-5 as built
 
 - **Flow:** sign in (email and password) -> `POST /api/uploads/sign` -> browser uploads straight to Cloudinary ->
-  `POST /api/jobs` (checks the source URL is our own Cloudinary folder, spends one reel, queues the job,
-  runs it with `after()`) -> browser polls `GET /api/jobs/[id]`, which also re-claims a stuck job.
+  `POST /api/jobs` (checks the source URL is our own Cloudinary folder and the user's `start` and `duration`,
+  spends one reel, queues the job, runs it with `after()`) -> browser polls `GET /api/jobs/[id]`, which also
+  re-claims a stuck job -> browser fetches `GET /api/jobs/[id]/download`, once.
+- **Trim editor:** `app/dashboard/TrimEditor.js` previews the local file and picks the start and a length of
+  10, 15, 20, 25 or 30 s (`lib/reel-lengths.js`). The server cuts exactly that range and fails the job
+  (refunded) if it runs past the end of the video.
 - **Entitlements (`lib/entitlements.js`):** one free reel per account, 30 reels/month on Pro. Every spend is one atomic
   Mongo update. Failed jobs are refunded once (`refunded` flag). A global daily limit is the circuit breaker.
 - **Billing:** only the verified Stripe webhook writes plan state; duplicate and out-of-order events are ignored.
-- **Retention:** the daily recover cron deletes source and reel 7 days after a job finishes.
+- **Retention:** nothing about the reel is saved in Mongo. The source is deleted as soon as the reel is made, and the
+  reel is deleted right after it has been streamed to the user (`reelDeleted` marks it, so there is no second
+  download). The daily recover cron is the backup: it deletes any leftover source or reel 7 days after a job finishes.
 - **Security:** CSP and other headers in `next.config.js`; jobs are readable only by their owner; cron routes need the secret.
-- **Tests:** `npm test` (unit and Mongo integration, 77 tests) and `npm run test:e2e` (Playwright on a production build with
+- **Tests:** `npm test` (unit and Mongo integration, 128 tests) and `npm run test:e2e` (Playwright on a production build with
   an in-memory Mongo and fake third-party keys).
 - **Not covered by any test:** real sign-in on a deployed URL, real Stripe, real Cloudinary, ffmpeg on Vercel.
