@@ -37,7 +37,6 @@ export async function GET(request, { params }) {
   return Response.json({
     id,
     status: job.status,
-    result: job.result,
     error: job.error,
   });
 }
