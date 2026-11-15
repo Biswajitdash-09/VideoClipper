@@ -1,0 +1,37 @@
+# dependencies
+node_modules/
+
+# next.js build output
+.next/
+out/
+next-env.d.ts
+
+# env files (secrets) — keep only the example file
+.env
+.env.*
+!.env.example
+
+# logs / debug
+*.log
+npm-debug.log*
+
+# vercel
+.vercel/
+
+# testing
+coverage/
+playwright-report/
+test-results/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Claude Code local files (launch.json stays tracked)
+.claude/settings.local.json
+
+# temp media from local spikes
+tmp/
+*.mp4
