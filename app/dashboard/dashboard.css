@@ -1,0 +1,231 @@
+.dash {
+  --border: #c9d6b4;
+  --line: #d9e3c8;
+  --muted: #5e5e61;
+  --card: #fbfdf7;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--sp-4) var(--sp-3) var(--sp-12);
+  color: var(--ink);
+}
+.dash-narrow {
+  max-width: 520px;
+  padding-top: var(--sp-12);
+  text-align: center;
+}
+.dash h1 {
+  font: 700 var(--t-2xl) / 1.1 var(--f-tight);
+  letter-spacing: -0.03em;
+}
+.dash h2 {
+  font: 700 var(--t-lg) / 1.2 var(--f-tight);
+  letter-spacing: -0.02em;
+}
+.dash-lede,
+.dash-recent p {
+  margin-top: var(--sp-1);
+  color: var(--muted);
+  font-size: var(--t-base);
+  line-height: 1.55;
+}
+.dash-narrow form {
+  margin-top: var(--sp-4);
+}
+
+.dash-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-6);
+}
+.dash-logo {
+  color: var(--green);
+  font: 700 var(--t-lg) / 1 var(--f-tight);
+  text-decoration: none;
+}
+.dash-user {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--muted);
+  font-size: var(--t-sm);
+  min-width: 0;
+}
+.dash-user span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dash-link,
+.dash-back {
+  background: none;
+  border: 0;
+  color: var(--green);
+  font: 500 var(--t-sm) var(--f-inter);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.dash-back {
+  display: inline-block;
+  margin-top: var(--sp-3);
+}
+
+.dash-btn {
+  height: 52px;
+  padding: 0 var(--sp-4);
+  border: 0;
+  border-radius: 999px;
+  background: var(--green);
+  color: #fff;
+  font: 500 var(--t-base) var(--f-inter);
+  cursor: pointer;
+}
+.dash-btn:hover:not(:disabled) {
+  background: #0b5a39;
+}
+.dash-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.dash-btn-quiet {
+  background: transparent;
+  color: var(--green);
+  border: 1.5px solid var(--border);
+}
+.dash-btn-quiet:hover:not(:disabled) {
+  background: #eef4e3;
+}
+
+.dash-plan {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin: var(--sp-3) 0;
+  padding: var(--sp-2) var(--sp-3);
+  border: 1.5px solid var(--border);
+  border-radius: 28px;
+  background: var(--card);
+}
+.dash-plan p {
+  font-size: var(--t-base);
+}
+.dash-note {
+  margin-bottom: var(--sp-3);
+  color: var(--muted);
+  font-size: var(--t-base);
+}
+
+.maker {
+  display: grid;
+  grid-template-columns: 1fr minmax(220px, 280px);
+  gap: var(--sp-6);
+  align-items: start;
+  margin-top: var(--sp-6);
+}
+.maker form {
+  display: grid;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+.maker label:first-child {
+  font-weight: 500;
+}
+.maker input[type="file"] {
+  padding: var(--sp-2);
+  border: 1.5px dashed var(--border);
+  border-radius: 20px;
+  background: #fff;
+  font: 400 var(--t-sm) var(--f-inter);
+}
+.maker .try-check {
+  justify-content: flex-start;
+}
+.maker .dash-btn {
+  justify-self: start;
+  margin-top: var(--sp-1);
+}
+.maker progress {
+  width: 100%;
+  margin-top: var(--sp-1);
+  accent-color: var(--green);
+}
+.dash-status {
+  margin-top: var(--sp-2);
+  min-height: var(--sp-3);
+  color: var(--green);
+  font-size: var(--t-sm);
+}
+.dash-status.error,
+.dash-error {
+  color: #a02820;
+}
+.dash-error {
+  margin-top: var(--sp-1);
+  font-size: var(--t-sm);
+}
+
+/* The 9:16 frame is the one memorable thing: it shows the shape of what you get. */
+.reel-frame {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  border-radius: 28px;
+  background: #e8f0da;
+  color: var(--muted);
+  font-size: var(--t-sm);
+  text-align: center;
+}
+.reel-frame p {
+  padding: var(--sp-2);
+}
+.reel-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+}
+.reel-frame.uploading,
+.reel-frame.processing {
+  animation: frame-breathe 1.8s ease-in-out infinite;
+}
+@keyframes frame-breathe {
+  50% {
+    background: #dbe7c6;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reel-frame.uploading,
+  .reel-frame.processing {
+    animation: none;
+  }
+}
+
+.dash-recent {
+  margin-top: var(--sp-8);
+}
+.dash-recent ul {
+  margin-top: var(--sp-2);
+  padding-left: var(--sp-3);
+  line-height: 1.8;
+}
+.dash-recent a {
+  color: var(--green);
+}
+
+@media (max-width: 720px) {
+  .maker {
+    grid-template-columns: 1fr;
+  }
+  .reel-frame {
+    max-width: 240px;
+    justify-self: center;
+  }
+  .dash-user span {
+    display: none;
+  }
+}
