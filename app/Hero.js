@@ -298,8 +298,8 @@ export default function Hero() {
             <span data-a="line">with Snackable Reels</span>
           </h1>
           <p className="a sub" data-a="sub">
-            Upload a video and we cut a 15-second clip, <br />
-            crop it to vertical, ready to post. <br />
+            Upload a video, pick the part you want, <br />
+            and we crop it to vertical, ready to post. <br />
             Works with any video you have the rights to.
           </p>
 

@@ -3,7 +3,10 @@ const STEPS = [
     "Upload your video",
     "Choose a video you have the rights to use, up to 100 MB.",
   ],
-  ["We pick the moment", "We cut a 15-second clip from your video."],
+  [
+    "You pick the moment",
+    "Preview your video and choose the part you want, 10 to 30 seconds.",
+  ],
   ["Download your reel", "Get a vertical 9:16 clip, ready to post anywhere."],
 ];
 
@@ -12,10 +15,13 @@ const FAQS = [
     "Which videos can I use?",
     "Only videos you own or have permission to use. You confirm this every time you make a reel.",
   ],
-  ["How long is a reel?", "About 15 seconds, in vertical 9:16."],
+  [
+    "How long is a reel?",
+    "10, 15, 20, 25 or 30 seconds, your choice, in vertical 9:16.",
+  ],
   [
     "Which part of my video is used?",
-    "For now we cut a 15-second clip from your video automatically. Picking the best moment and adding captions are planned.",
+    "You do. Preview your video, set where the reel starts and how long it is. Picking the best moment automatically and adding captions are planned.",
   ],
   [
     "What does the free trial include?",
@@ -23,7 +29,7 @@ const FAQS = [
   ],
   [
     "How long are my reels kept?",
-    "Reels are deleted after 7 days, so download yours before then.",
+    "Not at all. Your reel is deleted from our servers as soon as it reaches you, so download it right away. Your uploaded video is deleted as soon as the reel is made.",
   ],
   [
     "What if my reel fails?",
@@ -67,8 +73,8 @@ export default function Sections() {
             <p className="plan-price">1 reel</p>
             <ul>
               <li>Vertical 9:16, 720p</li>
-              <li>15-second clip from your video</li>
-              <li>Kept for 7 days</li>
+              <li>10 to 30 seconds, the part you pick</li>
+              <li>Deleted as soon as you download it</li>
             </ul>
           </div>
           <div className="plan plan-pro">

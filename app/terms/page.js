@@ -20,8 +20,9 @@ export default function Terms() {
 
       <h2>How long we keep files</h2>
       <p>
-        Your uploaded video and your reel are deleted 7 days after the reel is
-        made. Download your reel before then.
+        Your uploaded video is deleted as soon as your reel is made. Your reel
+        is deleted as soon as you download it, so keep your copy. If something
+        goes wrong, anything left over is deleted after 7 days.
       </p>
 
       <h2>Free reel and plans</h2>
