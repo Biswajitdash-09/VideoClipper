@@ -61,14 +61,16 @@ export default function Sections() {
         </div>
       </section>
 
-      <section className="sec narrow" id="faq" aria-labelledby="faq-h">
+      <section className="sec" id="faq" aria-labelledby="faq-h">
         <h2 id="faq-h">Questions</h2>
-        {FAQS.map(([q, a]) => (
-          <details key={q}>
-            <summary>{q}</summary>
-            <p>{a}</p>
-          </details>
-        ))}
+        <div className="faq-list">
+          {FAQS.map(([q, a]) => (
+            <details key={q}>
+              <summary>{q}</summary>
+              <p>{a}</p>
+            </details>
+          ))}
+        </div>
       </section>
 
       <footer className="foot">
