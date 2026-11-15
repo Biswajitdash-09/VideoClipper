@@ -281,7 +281,11 @@ export default function Hero() {
             <a className="a pill login" href="/dashboard" data-a="nav">
               Log in
             </a>
-            <a className="a pill signup" href="/dashboard" data-a="nav">
+            <a
+              className="a pill signup"
+              href="/dashboard?mode=signup"
+              data-a="nav"
+            >
               Sign up
             </a>
           </header>
