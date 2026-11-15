@@ -11,7 +11,7 @@ export async function db() {
   return { db: client.db(), close: () => client.close() };
 }
 
-// Signs in without Google: Auth.js sessions are just a signed cookie, and we know the secret.
+// Signs in without the form: Auth.js sessions are just a signed cookie, and we know the secret.
 export async function signInAs(context, { id, email }) {
   const value = await encode({
     token: { sub: id, email, name: "E2E" },

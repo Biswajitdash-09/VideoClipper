@@ -6,7 +6,7 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://res.cloudinary.com https://d2ol7oe51mr4n9.cloudfront.net https://lh3.googleusercontent.com",
+  "img-src 'self' data: blob: https://res.cloudinary.com https://d2ol7oe51mr4n9.cloudfront.net",
   "media-src 'self' blob: https://res.cloudinary.com https://d2ol7oe51mr4n9.cloudfront.net",
   "font-src 'self' data:",
   "connect-src 'self' https://api.cloudinary.com https://res.cloudinary.com",

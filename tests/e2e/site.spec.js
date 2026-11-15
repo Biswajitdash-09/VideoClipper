@@ -37,9 +37,9 @@ test.describe("public pages", () => {
     await expect(
       page.getByRole("heading", { name: "Sign in to make your reel" }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("button", { name: "Continue with Google" }),
-    ).toBeVisible();
+    await expect(page.getByLabel("Email")).toBeVisible();
+    await expect(page.getByLabel("Password")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
   });
 
   test("phone width has no sideways scroll", async ({ page }) => {

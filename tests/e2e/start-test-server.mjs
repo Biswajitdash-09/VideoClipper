@@ -17,8 +17,6 @@ const env = {
   CRON_SECRET: "e2e-cron-secret-0123456789",
   CLOUDINARY_URL: "cloudinary://key:secret@e2ecloud",
   AUTH_SECRET: "e2e-auth-secret-0123456789abcdef",
-  AUTH_GOOGLE_ID: "fake",
-  AUTH_GOOGLE_SECRET: "fake",
   AUTH_TRUST_HOST: "true",
   APP_URL: `http://localhost:${APP_PORT}`,
   STRIPE_SECRET_KEY: "sk_test_dummy",

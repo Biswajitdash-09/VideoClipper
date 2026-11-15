@@ -55,7 +55,7 @@ Local result: 40 s 720p input -> 15 s 720x1280 reel, 1.8 s, 1.7 MB (`node script
 
 ## Phases 2-5 as built
 
-- **Flow:** sign in (Google) -> `POST /api/uploads/sign` -> browser uploads straight to Cloudinary ->
+- **Flow:** sign in (email and password) -> `POST /api/uploads/sign` -> browser uploads straight to Cloudinary ->
   `POST /api/jobs` (checks the source URL is our own Cloudinary folder, spends one reel, queues the job,
   runs it with `after()`) -> browser polls `GET /api/jobs/[id]`, which also re-claims a stuck job.
 - **Entitlements (`lib/entitlements.js`):** one free reel per account, 30 reels/month on Pro. Every spend is one atomic
@@ -65,4 +65,4 @@ Local result: 40 s 720p input -> 15 s 720x1280 reel, 1.8 s, 1.7 MB (`node script
 - **Security:** CSP and other headers in `next.config.js`; jobs are readable only by their owner; cron routes need the secret.
 - **Tests:** `npm test` (unit and Mongo integration, 77 tests) and `npm run test:e2e` (Playwright on a production build with
   an in-memory Mongo and fake third-party keys).
-- **Not covered by any test:** real Google sign-in, real Stripe, real Cloudinary, ffmpeg on Vercel.
+- **Not covered by any test:** real sign-in on a deployed URL, real Stripe, real Cloudinary, ffmpeg on Vercel.
