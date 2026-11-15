@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 const STEPS = [
   [
     "Upload your video",
@@ -6,23 +5,6 @@ const STEPS = [
   ],
   ["We pick the moment", "We cut a 15-second clip from your video."],
   ["Download your reel", "Get a vertical 9:16 clip, ready to post anywhere."],
-=======
-import TryForm from "./TryForm";
-
-const STEPS = [
-  [
-    "Paste a link",
-    "Drop in a YouTube link for a video you have the rights to use.",
-  ],
-  [
-    "We pick the moment",
-    "We read the captions and choose the strongest 10–20 seconds.",
-  ],
-  [
-    "Download your reel",
-    "Get a vertical, captioned clip, ready to post anywhere.",
-  ],
->>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
 ];
 
 const FAQS = [
@@ -30,17 +12,10 @@ const FAQS = [
     "Which videos can I use?",
     "Only videos you own or have permission to use. You confirm this every time you make a reel.",
   ],
-<<<<<<< HEAD
   ["How long is a reel?", "About 15 seconds, in vertical 9:16."],
   [
     "Which part of my video is used?",
     "For now we cut a 15-second clip from your video automatically. Picking the best moment and adding captions are planned.",
-=======
-  ["How long is a reel?", "Between 10 and 20 seconds, in vertical 9:16."],
-  [
-    "How is the moment chosen?",
-    "From the video's captions: we look for dense, complete sentences. If a video has no captions, we use a clip from the middle.",
->>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
   ],
   [
     "What does the free trial include?",
@@ -51,13 +26,8 @@ const FAQS = [
     "Reels are deleted after 7 days, so download yours before then.",
   ],
   [
-<<<<<<< HEAD
     "What if my reel fails?",
     "You will see a message, and the reel is not counted against your free trial or your plan.",
-=======
-    "Why did my link not work?",
-    "Private, age-restricted and region-blocked videos cannot be processed. You will see the reason, and your free reel stays available.",
->>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
   ],
 ];
 
@@ -82,17 +52,11 @@ export default function Sections() {
       <section className="sec try" id="try" aria-labelledby="try-h">
         <h2 id="try-h">Make your first reel</h2>
         <p className="lede">
-<<<<<<< HEAD
           Sign in, upload a video and get your reel in about a minute.
         </p>
         <a className="try-cta" href="/dashboard">
           Make a reel
         </a>
-=======
-          Paste a link to check it. Reel creation opens soon.
-        </p>
-        <TryForm />
->>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
       </section>
 
       <section className="sec" id="pricing" aria-labelledby="pricing-h">
@@ -137,12 +101,9 @@ export default function Sections() {
           Only upload or link content you have the rights to. Rights holders can
           request removal at any time.
         </span>
-<<<<<<< HEAD
         <span>
           <a href="/terms">Terms</a> · <a href="/takedown">Takedown requests</a>
         </span>
-=======
->>>>>>> c98f3fb7c1bab184f45a30a22bb8a0d7bb19c92b
       </footer>
     </>
   );
