@@ -104,22 +104,22 @@ export default function Hero() {
 
   const draw = { pathLength: 1, className: 'draw', 'data-a': 'draw' };
   return (
-    <main className="frame" ref={root}>
-      <div className="top">
-        <a className="a logo" href="#" data-a="nav">
+    <div className="hero"><div className="frame" ref={root}>
+      <header className="top">
+        <a className="a logo" href="#top" data-a="nav" aria-label="Reelmark home">
           <svg viewBox="0 0 28 28"><path d="M4 24C4 10 12 4 25 3c0 13-6 21-18 21" fill="#08482D" /><path d="M5 25c5-8 9-12 15-16" stroke="#F5F8EF" strokeWidth="1.8" fill="none" strokeLinecap="round" /></svg>
           Reelmark
         </a>
-        <nav className="a nav">
-          {['Brands', 'Creators', 'Pricing', 'Use Cases', 'Contact'].map((n) => <a key={n} href="#" data-a="nav">{n}</a>)}
+        <nav className="a nav" aria-label="Main">
+          {[['How it works', '#how'], ['Try it', '#try'], ['Pricing', '#pricing'], ['FAQ', '#faq']].map(([n, h]) => <a key={n} href={h} data-a="nav">{n}</a>)}
         </nav>
-        <a className="a pill login" href="#" data-a="nav">Log in</a>
-        <a className="a pill signup" href="#" data-a="nav">Sign up</a>
-      </div>
+        <a className="a pill login" href="#try" data-a="nav">Log in</a>
+        <a className="a pill signup" href="#try" data-a="nav">Sign up</a>
+      </header>
 
-      <div className="a badge" data-a="badge">Trusted by 120,000+ indie makers</div>
+      <div className="a badge" data-a="badge">Your first reel is free</div>
       <h1 className="a"><span data-a="line">Captivate Crowds</span><span data-a="line">with Snackable Reels</span></h1>
-      <p className="a sub" data-a="sub">Grow your brand with short, snappy product clips by{' '}<br />our handpicked video makers. Our crew is ready to{' '}<br />lift your next launch higher.</p>
+      <p className="a sub" data-a="sub">Paste a YouTube link and we find the best 10–20 seconds,{' '}<br />crop it to vertical and add captions, ready to post.{' '}<br />Works with any video you have the rights to.</p>
 
       <svg className="a doodle slash" viewBox="0 0 60 60"><path {...draw} d="M14 54 L28 6" /><path {...draw} d="M36 54 L50 6" /></svg>
       <div className="a note seen" data-a="note">Be seen<br />with clips</div>
@@ -137,9 +137,9 @@ export default function Hero() {
         ))}
       </div>
 
-      <div className="a cta" data-a="cta"><a href="#">Make a Reel</a></div>
+      <div className="a cta" data-a="cta"><a href="#try">Make a Reel</a></div>
       <svg className="a doodle arr2" viewBox="0 0 50 50"><path {...draw} d="M4 40 C14 44 34 36 44 10" /><path {...draw} d="M34 14 L44 8 L47 22" /></svg>
-      <div className="a note zero" data-a="note">Zero cost</div>
-    </main>
+      <div className="a note zero" data-a="note">First one's free</div>
+    </div></div>
   );
 }
